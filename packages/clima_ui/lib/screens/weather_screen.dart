@@ -6,10 +6,8 @@ import 'package:clima_ui/state_notifiers/weather_state_notifier.dart' as w;
 import 'package:clima_ui/utilities/constants.dart';
 import 'package:clima_ui/utilities/failure_snack_bar.dart';
 import 'package:clima_ui/utilities/hooks.dart';
-import 'package:clima_ui/widgets/bottom_row.dart';
-import 'package:clima_ui/widgets/current_conditions.dart';
-import 'package:clima_ui/widgets/forecast_widget.dart';
-import 'package:clima_ui/widgets/reusable_widgets.dart';
+import 'package:clima_ui/utilities/modal_buttom_sheet.dart';
+import 'package:clima_ui/widgets/settings/settings_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,14 +38,12 @@ class WeatherScreen extends HookWidget {
     final cityStateNotifier = useProvider(c.cityStateNotifierProvider.notifier);
 
     Future<void> load() async {
-      isLoading.value = true;
       await Future.wait(
         [
           weatherStateNotifier.loadWeather(),
           forecastsStateNotifier.loadForecasts(),
         ],
       );
-      isLoading.value = false;
     }
 
     useEffect(
@@ -80,6 +76,7 @@ class WeatherScreen extends HookWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: FloatingSearchAppBar(
+        liftOnScrollElevation: 0.0,
         systemOverlayStyle: Theme.of(context).appBarTheme.systemOverlayStyle,
         automaticallyImplyBackButton: false,
         controller: controller,
@@ -109,23 +106,13 @@ class WeatherScreen extends HookWidget {
             fontSize:
                 MediaQuery.of(context).size.shortestSide < kTabletBreakpoint
                     ? 11.sp
-                    : 8.sp,
+                    : 5.sp,
           ),
         ),
         hint: 'Enter city name',
         color: Theme.of(context).appBarTheme.color,
         transitionCurve: Curves.easeInOut,
         leadingActions: [
-          FloatingSearchBarAction(
-            child: CircularButton(
-              icon: Icon(
-                Icons.refresh,
-                color: Theme.of(context).appBarTheme.iconTheme!.color,
-              ),
-              tooltip: 'Refresh',
-              onPressed: load,
-            ),
-          ),
           FloatingSearchBarAction.back(
             color: Theme.of(context).appBarTheme.iconTheme!.color,
           ),
@@ -216,30 +203,53 @@ class WeatherScreen extends HookWidget {
             showIfClosed: false,
           )
         ],
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Flexible(
-              flex: 10,
-              child: CurrentConditions(),
+        body: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: load,
+            color: Theme.of(context).textTheme.subtitle1!.color,
+            child: Container(
+              constraints: const BoxConstraints.expand(),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    // Main info
+                    Container(),
+                    Divider(
+                      color: Theme.of(context)
+                          .textTheme
+                          .subtitle1!
+                          .color!
+                          .withAlpha(65),
+                    ),
+
+                    // Hourly forecast
+                    SizedBox(
+                      height: 16.h,
+                      child: Container(),
+                    ),
+                    Divider(
+                      color: Theme.of(context)
+                          .textTheme
+                          .subtitle1!
+                          .color!
+                          .withAlpha(65),
+                    ),
+
+                    // Additional info
+                    Container(),
+                    Divider(
+                      color: Theme.of(context)
+                          .textTheme
+                          .subtitle1!
+                          .color!
+                          .withAlpha(65),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            Divider(
-              color:
-                  Theme.of(context).textTheme.subtitle1!.color!.withAlpha(65),
-            ),
-            Flexible(
-              flex: 2,
-              child: ForecastHorizontal(),
-            ),
-            Divider(
-              color:
-                  Theme.of(context).textTheme.subtitle1!.color!.withAlpha(65),
-            ),
-            Flexible(
-              flex: 2,
-              child: BottomRow(),
-            ),
-          ],
+          ),
         ),
       ),
     );
