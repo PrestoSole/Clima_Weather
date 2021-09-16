@@ -6,7 +6,7 @@ import 'package:clima_data/providers.dart';
 import 'package:clima_domain/entities/city.dart';
 import 'package:clima_domain/entities/weather.dart';
 import 'package:clima_domain/repos/weather_repo.dart';
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:riverpod/riverpod.dart';
 
 class WeatherRepoImpl implements WeatherRepo {
